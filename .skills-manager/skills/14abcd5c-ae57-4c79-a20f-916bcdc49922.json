@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "14abcd5c-ae57-4c79-a20f-916bcdc49922",
+  "path": "scansci-svg",
+  "path_key": "scansci-svg",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
