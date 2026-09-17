@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "f05fd5dd-15bd-4a71-b662-5560b40b028e",
+  "path": "ultraplot-figures",
+  "path_key": "ultraplot-figures",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

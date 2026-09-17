@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "2cf7ead6-20bb-4a7d-8322-54d0453cdad4",
+  "path": "nature-figure",
+  "path_key": "nature-figure",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

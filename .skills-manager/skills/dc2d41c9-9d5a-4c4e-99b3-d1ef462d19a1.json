@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "dc2d41c9-9d5a-4c4e-99b3-d1ef462d19a1",
+  "path": "scienceplots",
+  "path_key": "scienceplots",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

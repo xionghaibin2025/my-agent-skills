@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "70def304-9461-4d5c-abb7-0fa3a2dfb8f7",
+  "path": "good-question",
+  "path_key": "good-question",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

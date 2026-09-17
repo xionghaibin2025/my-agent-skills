@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "9c94c49c-640c-4985-8eeb-eb7aec74f81a",
+  "path": "scientific-visualization",
+  "path_key": "scientific-visualization",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

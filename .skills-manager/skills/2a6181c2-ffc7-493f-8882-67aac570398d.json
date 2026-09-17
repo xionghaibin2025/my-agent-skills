@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "2a6181c2-ffc7-493f-8882-67aac570398d",
+  "path": "good-story",
+  "path_key": "good-story",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

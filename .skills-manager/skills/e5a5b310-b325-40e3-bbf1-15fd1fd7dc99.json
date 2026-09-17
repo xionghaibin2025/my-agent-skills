@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "e5a5b310-b325-40e3-bbf1-15fd1fd7dc99",
+  "path": "paper-figures",
+  "path_key": "paper-figures",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

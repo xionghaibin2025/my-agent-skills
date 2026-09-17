@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "55fb3195-77a5-4864-a7c1-a32ebfe9cfa5",
+  "path": "kimi-cu",
+  "path_key": "kimi-cu",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "UltraPlot Figures"
+  short_description: "Create maintainable publication-ready UltraPlot figures"
+  default_prompt: "Use $ultraplot-figures to create or revise a publication-ready scientific figure with concise, maintainable code, and perform verification outside the retained scripts."

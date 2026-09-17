@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "bc0b6001-6614-4cd6-9663-7d6a0bcd8b24",
+  "path": "study-area-map",
+  "path_key": "study-area-map",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

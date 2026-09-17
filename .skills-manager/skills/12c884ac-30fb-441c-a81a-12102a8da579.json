@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "12c884ac-30fb-441c-a81a-12102a8da579",
+  "path": "rfigure",
+  "path_key": "rfigure",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

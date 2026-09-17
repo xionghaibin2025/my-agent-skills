@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "06850688-280b-4bb6-8cc1-10aeefd235e2",
+  "path": "abstract-fig",
+  "path_key": "abstract-fig",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

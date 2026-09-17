@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "2daf8b1b-3760-49aa-aee4-07bd30e7deeb",
+  "path": "ai-cross",
+  "path_key": "ai-cross",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
