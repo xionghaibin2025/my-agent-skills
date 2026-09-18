@@ -4,7 +4,9 @@
   "path": "abstract-fig",
   "path_key": "abstract-fig",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "画图"
+  ],
   "source": {
     "type": "import",
     "ref": null,

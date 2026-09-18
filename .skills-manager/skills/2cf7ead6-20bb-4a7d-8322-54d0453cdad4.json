@@ -4,7 +4,9 @@
   "path": "nature-figure",
   "path_key": "nature-figure",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "画图"
+  ],
   "source": {
     "type": "import",
     "ref": null,
