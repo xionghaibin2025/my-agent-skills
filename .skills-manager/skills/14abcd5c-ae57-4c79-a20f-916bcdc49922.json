@@ -4,7 +4,9 @@
   "path": "scansci-svg",
   "path_key": "scansci-svg",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "画图"
+  ],
   "source": {
     "type": "local",
     "ref": null,

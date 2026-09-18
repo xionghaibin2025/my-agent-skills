@@ -4,7 +4,9 @@
   "path": "instsci",
   "path_key": "instsci",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "下载文献"
+  ],
   "source": {
     "type": "import",
     "ref": null,

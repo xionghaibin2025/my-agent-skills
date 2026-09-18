@@ -4,7 +4,9 @@
   "path": "paper-figures",
   "path_key": "paper-figures",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "画图"
+  ],
   "source": {
     "type": "import",
     "ref": null,

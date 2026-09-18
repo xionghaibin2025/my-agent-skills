@@ -4,7 +4,9 @@
   "path": "paper-spine",
   "path_key": "paper-spine",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "论文写作与PPT制作"
+  ],
   "source": {
     "type": "import",
     "ref": null,

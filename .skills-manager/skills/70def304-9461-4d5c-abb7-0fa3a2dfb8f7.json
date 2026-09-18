@@ -4,7 +4,9 @@
   "path": "good-question",
   "path_key": "good-question",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "思考"
+  ],
   "source": {
     "type": "import",
     "ref": null,

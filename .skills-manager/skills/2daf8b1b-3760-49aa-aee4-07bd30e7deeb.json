@@ -4,7 +4,9 @@
   "path": "ai-cross",
   "path_key": "ai-cross",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "工具与多模型"
+  ],
   "source": {
     "type": "import",
     "ref": null,

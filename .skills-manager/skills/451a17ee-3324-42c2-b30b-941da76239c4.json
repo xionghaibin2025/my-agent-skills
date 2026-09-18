@@ -4,7 +4,9 @@
   "path": "grill-me",
   "path_key": "grill-me",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "思考"
+  ],
   "source": {
     "type": "import",
     "ref": null,
