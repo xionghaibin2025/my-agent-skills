@@ -3,5 +3,12 @@
   "scenario_id": "37f7ab82-d712-47a5-8e7c-0c26ba78a21a",
   "skill_id": "70def304-9461-4d5c-abb7-0fa3a2dfb8f7",
   "sort_order": 0,
-  "tools": {}
+  "tools": {
+    "antigravity": false,
+    "claude_code": false,
+    "codex": false,
+    "gemini_cli": false,
+    "kimi": false,
+    "zcode": false
+  }
 }
