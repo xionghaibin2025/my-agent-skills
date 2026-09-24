@@ -7,7 +7,7 @@
     "antigravity": true,
     "claude_code": true,
     "codex": true,
-    "gemini_cli": false,
+    "gemini_cli": true,
     "kimi": true,
     "zcode": true
   }
