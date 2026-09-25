@@ -127,6 +127,14 @@ def cmd_exec(args):
     child["ANTHROPIC_BASE_URL"] = base
     child["ANTHROPIC_AUTH_TOKEN"] = token
     child.pop("ANTHROPIC_API_KEY", None)
+    # 防挂起加固：派发场景不需要 claude CLI 的遥测/崩溃上报/自动更新/非必要模型调用。
+    # 这些后台请求在代理切换、断境外网等网络异常时会把整个子进程挂住直到超时
+    # （2026-09-26 ZCode 会话超时事件后的加固；实测 debug 日志未见这些域名，属保险措施）。
+    child.setdefault("DISABLE_TELEMETRY", "1")
+    child.setdefault("DISABLE_ERROR_REPORTING", "1")
+    child.setdefault("DISABLE_AUTOUPDATER", "1")
+    child.setdefault("DISABLE_NON_ESSENTIAL_MODEL_CALLS", "1")
+    child.setdefault("CLAUDE_CODE_DISABLE_NONESSENTIAL_MODEL_CALLS", "1")
     # token 只在 child 环境里，绝不打印
     # 注意：绝不能用 shell=True + 列表参数——Windows 下多行任务文本会在换行处被截断
     claude_bin = shutil.which("claude")
@@ -149,8 +157,10 @@ def cmd_exec(args):
         )
     except subprocess.TimeoutExpired:
         print(f"[超时] provider={args.provider} model={model} 超过 {args.timeout}s 未返回。\n"
-              f"提示: 可能是端点过载(529)，也可能是模型 ID 无效(400 被 CLI 反复重试到超时)。\n"
-              f"      别默认当成过载——先直接打端点看响应体，再决定是熔断切备选还是纠正模型 ID。",
+              f"提示: 先排除最常见原因——深思考模型(glm-5.3等)跑长报告类任务实测常需 200-300s，\n"
+              f"      默认超时可能偏紧，优先用 --timeout 400 重试。\n"
+              f"      也可能是端点过载(529)、模型 ID 无效(400 被 CLI 反复重试)、或网络异常(代理切换中)\n"
+              f"      导致 claude CLI 后台请求挂起。别默认当成过载——先直接打端点看响应体再判断。",
               file=sys.stderr)
         sys.exit(9)
 
@@ -202,7 +212,9 @@ def main():
                    help='派发子进程可用的工具白名单（只读护栏）。默认 Read,Grep,Glob；'
                         '纯文本任务传 "" 禁用全部工具最省。')
     e.add_argument("--usage", action="store_true", help="在 stderr 打印 token 用量与耗时")
-    e.add_argument("--timeout", type=int, default=180)
+    e.add_argument("--timeout", type=int, default=300,
+                   help="子进程超时秒数，默认 300。深思考模型(glm-5.3等)长报告实测 200-300s，"
+                        "180s 偏紧曾造成误杀（2026-09-26 ZCode 事件）。")
     a = p.parse_args()
     if a.cmd == "list":
         cmd_list(a)
