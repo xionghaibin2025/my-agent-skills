@@ -8,9 +8,9 @@
     "画图"
   ],
   "source": {
-    "type": "import",
-    "ref": null,
-    "subpath": null,
+    "type": "git",
+    "ref": "https://github.com/keros68/xiaoyu-skill",
+    "subpath": "skills/abstract-fig",
     "branch": null
   }
 }
