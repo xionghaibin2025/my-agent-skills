@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "skill_id": "c06cda48-e5a6-4dba-985f-1671865e507f",
+  "path": "paper-translate-skill",
+  "path_key": "paper-translate-skill",
+  "enabled": true,
+  "tags": [
+    "插图",
+    "翻译文献"
+  ],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
