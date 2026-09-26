@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "2469e164-ad1f-4de2-b8f1-10d320c09780",
+  "path": "figure-advisor",
+  "path_key": "figure-advisor",
+  "enabled": true,
+  "tags": [
+    "画图"
+  ],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

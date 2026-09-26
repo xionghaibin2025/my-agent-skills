@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "de9c5e8c-a814-4de3-989a-77cefd3a237b",
+  "path": "ks-paper-polish",
+  "path_key": "ks-paper-polish",
+  "enabled": true,
+  "tags": [
+    "论文写作与PPT制作"
+  ],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
