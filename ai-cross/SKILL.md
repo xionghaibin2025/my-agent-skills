@@ -34,6 +34,8 @@ description: 多模型分工与跨厂商交叉验证 skill：把任务派给合�
 
 **在无内部通道的宿主（Codex/WorkBuddy/Qoder 等）**：路由表照用（它输出的是**档位 + thinking**两个正交旋钮），只是低/中/高档由外部通道承担，`scout/worker/heavy` 仅作档位语义的占位名，不是可调用的角色。
 
+**在自带 subagent 但非 Claude Code 的宿主（ZCode、Kimi Code 等）**：宿主的 Agent 工具可用，但 `agents/scout|worker|heavy.md` 是 Claude Code 的角色定义文件，其他宿主不会自动加载——派发时把对应角色的要求直接写进 Agent 提示词即可。注意：这类宿主的 subagent 与主模型同厂商，只能作分工加速，**不能充当跨厂商交叉验证的一端**；交叉验证仍走外部通道。
+
 ## 成本的真正单位（读路由前先摆正）
 
 **对多数用户，"成本"不是美元，是「额度 / 限流余量」。** 订阅和 coding plan 是**固定月费**，plan 内的 token 是**已付过的沉没成本**——为省这些 token 去掏真金白银买裸 API，是净亏。所以：
