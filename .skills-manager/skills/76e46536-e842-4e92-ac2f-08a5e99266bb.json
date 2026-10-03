@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "76e46536-e842-4e92-ac2f-08a5e99266bb",
+  "path": "ks-evidence-chain",
+  "path_key": "ks-evidence-chain",
+  "enabled": true,
+  "tags": [
+    "论文写作"
+  ],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

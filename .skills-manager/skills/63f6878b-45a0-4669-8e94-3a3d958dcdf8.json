@@ -5,7 +5,7 @@
   "path_key": "dashiai-ppt",
   "enabled": true,
   "tags": [
-    "论文写作与PPT制作"
+    "PPT制作"
   ],
   "source": {
     "type": "import",

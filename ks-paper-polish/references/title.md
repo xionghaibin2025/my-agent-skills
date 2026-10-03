@@ -6,10 +6,10 @@
 [核心关键词] + [研究类型/方法] + [研究结果/关系] + [研究背景/条件]
 ```
 
-**示例**：
-- ✅ `Groundwater depletion drives land subsidence in the North China Plain`
-- ✅ `Non-stationary rainfall-runoff modeling: A case study of the Yangtze Basin`
-- ❌ `A study of groundwater in China`
+示例：
+- 可用：`Groundwater depletion drives land subsidence in the North China Plain`（正文有因果证据时）
+- 可用：`Non-stationary rainfall-runoff modeling: A case study of the Yangtze Basin`
+- 不用：`A study of groundwater in China`
 
 ## 核心规范
 
@@ -22,12 +22,7 @@
 
 ## 禁用废词
 
-以下开头必须删除：
-- ❌ "A study of..."
-- ❌ "Investigation of..."
-- ❌ "Observations on..."
-- ❌ "Research on..."
-- ❌ "Analysis of..."
+以下开头删去："A study of..."、"Investigation of..."、"Observations on..."、"Research on..."、"Analysis of..."。
 
 ## 标题类型
 
@@ -40,10 +35,10 @@
 ## 地学论文特别注意
 
 **错误**：过分强调地点，显得"地方性"
-- ❌ `Hydrogeochemistry of the Main Aquifer in Beijing`
+- 不用：`Hydrogeochemistry of the Main Aquifer in Beijing`
 
 **正确**：物理过程为核心，地点作为案例
-- ✅ `Nitrate contamination mechanisms in alluvial-pluvial fans: Evidence from Beijing`
+- 可用：`Nitrate contamination mechanisms in alluvial-pluvial fans: Evidence from Beijing`
 
 ## 润色检查清单
 

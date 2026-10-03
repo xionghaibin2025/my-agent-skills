@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "5e109147-1a1c-4781-ab1d-328d840d6704",
+  "path": "academic-reference-matcher",
+  "path_key": "academic-reference-matcher",
+  "enabled": true,
+  "tags": [
+    "论文写作"
+  ],
+  "source": {
+    "type": "git",
+    "ref": "https://github.com/keros68/xiaoyu-skill/tree/main/skills/academic-reference-matcher",
+    "subpath": "skills/academic-reference-matcher",
+    "branch": "main"
+  }
+}

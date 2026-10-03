@@ -7,9 +7,13 @@ ai-cross 的 cc-switch 只读桥。两种模式：
 
   exec --provider NAME    把该 provider 的 endpoint+token 按【进程内】注入并派发一个任务。
        [--tier haiku|sonnet|opus] [--model ID] (--task "..." | --task-file PATH)
-       [--tools "Read,Grep,Glob"] [--usage]
+       [--tools "Read,Grep,Glob"] [--add-dir "D1,D2"] [--full-perms] [--usage]
                           任务含引号/花括号/换行时务必用 --task-file，避免跨 shell 引号被拆碎。
                           --tools：只读护栏，默认 Read,Grep,Glob；纯文本任务传 "" 禁用全部工具最省。
+                          --add-dir：授权子会话访问工作目录之外的路径（文件类工具默认只放行 cwd）。
+                          --full-perms：附加 --dangerously-skip-permissions，跳过权限询问——无人值守 -p
+                          会话里没人能点批准，Bash 类命令不加此项会卡死在 requires approval。
+                          仅用于可信本机任务（如只读取证）；--tools 白名单护栏仍然生效。
                           --usage：额外在 stderr 打印本次 token 用量与耗时（stdout 仍只有模型回答）。
                           token 只在本脚本子进程内读取、注入子进程环境，绝不打印、绝不进主 agent 上下文。
                           仅支持 app_type=claude（Anthropic 兼容端点，载体 claude CLI）；codex/gemini 官方订阅
@@ -148,6 +152,17 @@ def cmd_exec(args):
     # 是 codex `-s read-only` 的等效物。--permission-mode 没有只读档，别用它。
     # 空串 = 禁用全部工具（纯文本任务最省）。
     cmd += ["--tools", args.tools]
+    # 目录授权（2026-09-27 Kimi K3 核验派发 R2 根因之一）：claude CLI 文件类工具默认只放行会话
+    # 工作目录，Glob/Read 碰工作目录外的盘符一律 "haven't granted yet"。--add-dir 逐目录放行。
+    if args.add_dir:
+        dirs = [d.strip().strip('"') for d in args.add_dir.split(",") if d.strip()]
+        if dirs:
+            cmd += ["--add-dir"] + dirs
+    # 全权限（R2 根因之二）：-p 无人值守会话的 permission prompt 无人应答，Bash 类命令全部
+    # "requires approval" 后被拒。--dangerously-skip-permissions 跳过询问；--tools 注册层
+    # 白名单仍然压着它（未注册的工具依旧不可用），护栏语义不变。
+    if args.full_perms:
+        cmd += ["--dangerously-skip-permissions"]
     # task 走 stdin，不进 argv：--tools 是 variadic，位置参数会被它吞掉；
     # 且 Windows 下多行 prompt 经 argv 会在第一个换行处截断。
     try:
@@ -211,6 +226,12 @@ def main():
     e.add_argument("--tools", default="Read,Grep,Glob",
                    help='派发子进程可用的工具白名单（只读护栏）。默认 Read,Grep,Glob；'
                         '纯文本任务传 "" 禁用全部工具最省。')
+    e.add_argument("--add-dir", dest="add_dir", default="",
+                   help='逗号分隔的额外授权目录，如 "D:\\program files(science),C:\\Program Files"。'
+                        "解决子会话访问工作目录之外路径被拒的问题；含空格路径整体无需加引号。")
+    e.add_argument("--full-perms", dest="full_perms", action="store_true",
+                   help="附加 --dangerously-skip-permissions：无人值守会话中 Bash 命令的审批无人应答会卡死，"
+                        "可信本机任务（如只读取证）加此项放行。默认关闭。")
     e.add_argument("--usage", action="store_true", help="在 stderr 打印 token 用量与耗时")
     e.add_argument("--timeout", type=int, default=300,
                    help="子进程超时秒数，默认 300。深思考模型(glm-5.3等)长报告实测 200-300s，"

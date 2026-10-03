@@ -39,6 +39,20 @@ python references/cc_switch.py exec --provider "Moonshot Kimi / Kimi Code" --tie
 # 纯文本最省模式（禁用全部工具）加 --tools ""
 ```
 
+**需要子代理亲自跑命令取证时**（2026-09-27 Kimi K3 核验事件后新增，缺一不可）：
+
+```bash
+python references/cc_switch.py exec --provider "..." --tier ... --task-file task.txt \
+  --tools "Read,Glob,Grep,Bash" \
+  --add-dir "D:\要访问的目录,C:\另一个目录" \
+  --full-perms --usage --timeout 400
+```
+
+- `--tools` 必须显式含 `Bash`（默认白名单只有 Read/Grep/Glob，Bash 根本不注册）；
+- `--add-dir` 放行工作目录之外的路径（文件类工具默认只放行 cwd，碰别的盘符一律拒绝）；
+- `--full-perms` 跳过权限询问（无人值守 `-p` 会话没人能点批准，Bash 命令会全部卡死在 requires approval）；`--tools` 注册层护栏仍然生效。
+- 替代姿势（更省、隔离更好）：**编排者自己采集原始输出落盘 → 子代理只做盲分析**（Read 工作区内证据文件）→ 编排者脚本复核其判定表。纯文本通道即可，无权限问题。
+
 注意：Git Bash 中需 `export PATH="$HOME/.local/bin:$PATH"` 让 `cc_switch.py` 找到 claude（已实测）。
 
 ## ⚠️ 关键架构事实（2026-09-26 查明）
@@ -56,8 +70,11 @@ python references/cc_switch.py exec --provider "Moonshot Kimi / Kimi Code" --tie
 
 ## 维护记录
 
+- 2026-09-27：修复"取证类派发两次全灭"问题（Kimi K3 核验 Inkscape 安装事件，留痕 `E:\2_AI工作区\agent\zcode\project_杂\.dispatch\2026092*-ccswitch-kimi-k3-verify*.md`）。**根因两层**：① cc_switch 默认 `--tools Read,Grep,Glob` 不含 Bash，子代理无法执行命令（R1）；② 显式加 Bash 后仍全灭——claude CLI 文件类工具默认只放行会话 cwd（Glob/Read 碰 D:\ C:\ 全拒），且 `-p` 无人值守会话的 permission prompt 无人应答，Bash 命令全部卡死在 requires approval（R2）。**修复**：cc_switch.py 新增 `--add-dir`（逐目录放行）与 `--full-perms`（附加 --dangerously-skip-permissions；--tools 注册层护栏仍压得住它）。低档 glm-5-turbo 冒烟一次通过（Bash 访问 D: + Read 访问 cwd 外 C: 文件均成功）。R3 用"编排者采集证据落盘 → K3 盲分析 → 脚本复核判定表"完成闭环，该姿势保留为取证类派发的推荐替代。另查明：`~/.agents/skills/ai-cross-main/` 主副本已不存在，现仅剩 `~/.zcode/skills/ai-cross/` 一份，无双向同步负担。
 - 2026-09-26：修复 ZCode 会话盲验 glm-5.3 超时事件（ZCode 会话 `sess_c5f4c22c` 在 180s 处被 cc_switch 杀掉）。**根因定案：glm-5.3 深思考跑长报告类任务实测需 200-250s（复现：16.7k output 用时 241s），默认 180s 超时偏紧属误杀**；debug 日志证实 claude CLI 全程只访问目标端点、无境外遥测请求，与网络/代理无关。修复：`cc_switch.py` 默认 `--timeout` 180→300，超时提示改写（长任务优先 `--timeout 400` 重试），并为子进程追加 `DISABLE_TELEMETRY`/`DISABLE_ERROR_REPORTING`/`DISABLE_AUTOUPDATER`/`DISABLE_NON_ESSENTIAL_MODEL_CALLS` 防挂起保险。修复后冒烟 8s 正常。已同步至 ZCode 侧副本 `~/.zcode/skills/ai-cross/`（该副本与主副本 `~/.agents/skills/ai-cross-main/` 是**两份独立拷贝**，改动需双向同步）。
 - 2026-09-26：新增 Kimi Code 通道（key 存用户级环境变量 `KIMI_API_KEY` + cc-switch provider「Moonshot Kimi / Kimi Code」，db 备份 `cc-switch.db.bak-20260926`）；查明并修复 settings.json env 劫持进程环境变量的问题（见「关键架构事实」）。
 - 2026-09-23：claude CLI 经 npm 全局安装反复损坏（静默空转、解包残缺），最终改用官方下载服务器手动安装原生二进制。**根因当日查明：火绒 HIPS 有专门针对 Claude Code 的行为拦截规则（`Software:OS/Claude.A`），node 解包 claude.exe 时被内核层强杀。用户当日卸载火绒后 npm 恢复正常。今后若重装安全软件，npm 装包静默失败时优先排查同类拦截。**
 - 2026-09-23：cc-switch db 备份 `cc-switch.db.bak-20260923`（含旧失效 key）、`cc-switch.db.bak-20260923-2`；修复 cc-switch 里 `ANTHROPIC_MODEL`/`FABLE` 的 `[1m]` 变体与 `Z_AI_API_KEY` 旧 key。
 - claude.exe 首次运行需一次性初始化，首次 `claude -p` 可能超过 180s；之后单次纯文本调用约 5–8s。
+- 2026-10-02：ZCode 后台 shell（Bash run_in_background）经 cc_switch 派发 k3-256k 报 `[claude-code:unrecognized_model]`+exit 0xC0000409，同参数前台调用正常（探针实测 4 组全过）。**规避：cc_switch 派发一律前台运行。** 另：要求子代理自跑 geopandas 多轮取证的审查任务 500s 超时，改 R3 姿势（编排者采集证据落盘→子代理纯 Read 盲分析，484s 完成）更稳更快。
+- 2026-10-03：cc_switch.py 在 Kimi Code 宿主派发成功但**收尾写 stdout 时报 UnicodeEncodeError（GBK 无法编码 '²'），子代理结果全文丢失**（exit 1、.out 0 字节）。根因：Kimi Code 的 Bash 调用 python 时未带 UTF-8 环境变量，stdout 按 GBK。**规避：Kimi Code 宿主下派发必须前置 `export PYTHONIOENCODING=utf-8 PYTHONUTF8=1`**（该变量组此前已在 ZCode 侧任务书中验证）。重试 488s 成功。另注：Kimi Code 宿主后台 Bash 派发 k3-256k 实测正常（ZCode 的 bg 问题未复现）。

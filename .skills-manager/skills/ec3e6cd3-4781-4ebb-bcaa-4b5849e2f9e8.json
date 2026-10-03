@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "ec3e6cd3-4781-4ebb-bcaa-4b5849e2f9e8",
+  "path": "sci-select",
+  "path_key": "sci-select",
+  "enabled": true,
+  "tags": [
+    "论文写作"
+  ],
+  "source": {
+    "type": "git",
+    "ref": "https://github.com/keros68/xiaoyu-skill/tree/main/skills/sci-select",
+    "subpath": "skills/sci-select",
+    "branch": "main"
+  }
+}

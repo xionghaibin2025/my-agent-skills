@@ -2,9 +2,9 @@
 
 > 文中句型只用于识别语步和诊断缺失，不作生成模板；写作时用带内容的具体句替代模板句，见 `de-ai-style.md`。
 
-## 核心原则
+## 范围
 
-> Results以报告发现为主，可以解释统计量或数据模式的直接含义；未经验证的机制、因果推断和文献比较放入Discussion。
+Results 以报告发现为主，可以解释统计量或数据模式的直接含义；未经验证的机制、因果推断和文献比较放入 Discussion。
 
 ## 组织原则
 
@@ -27,13 +27,13 @@
 
 ## 写作规范
 
-### ✅ 允许
+### 可以写
 - 描述数据模式和趋势
 - 报告统计显著性
 - 指出数据关联
 - 比较不同组/条件的差异
 
-### ❌ 移出Results
+### 移出 Results
 
 | 内容 | 示例 | 处理 |
 |----------|----------|----------|
@@ -78,15 +78,15 @@ ANOVA:     F(df_between, df_within) = value, p = 0.XXX
 
 ## 图文互涉原则
 
-> 文字**概括趋势和模式**，不逐点重复图表数据
+文字概括趋势和模式，不逐点重复图表数据。
 
-### ❌ 低级写法
+### 不宜
 ```
 "Figure 3 shows the discharge is 10 m³/s in Jan, 20 m³/s in Feb, 
 15 m³/s in Mar, 25 m³/s in Apr..."
 ```
 
-### ✅ 高级写法
+### 宜
 ```
 "As shown in Figure 3, discharge exhibits a distinct seasonal pattern, 
 peaking in July (45 m³/s) and reaching minimum values in February (8 m³/s)."
@@ -102,15 +102,15 @@ peaking in July (45 m³/s) and reaching minimum values in February (8 m³/s)."
 
 ## 负面结果处理
 
-> **必须如实报告**（科学诚信要求）
+阴性结果如实报告，给出统计量和具体 p 值。
 
-### ❌ 错误表达
+### 不宜
 ```
 "The intervention had no effect"
 "p > .05"（无具体值）
 ```
 
-### ✅ 正确表达
+### 宜
 ```
 "No significant difference was observed between groups (t(28) = 1.23, p = 0.23)"
 "The correlation was not statistically significant (r = 0.18, p = 0.15)"

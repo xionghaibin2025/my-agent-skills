@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "42105d73-4b15-4887-89f1-07c5bd4fadf4",
+  "path": "ks-compass",
+  "path_key": "ks-compass",
+  "enabled": true,
+  "tags": [
+    "思考"
+  ],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
