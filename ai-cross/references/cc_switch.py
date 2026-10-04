@@ -6,6 +6,11 @@ ai-cross 的 cc-switch 只读桥。两种模式：
                           token 一律不输出，仅给出 has_token 标志。供主 agent 建 manifest 与路由表。
 
   exec --provider NAME    把该 provider 的 endpoint+token 按【进程内】注入并派发一个任务。
+
+  exec --endpoint URL --key-env ENVVAR --model ID
+                          不经 cc-switch 的自定义 Anthropic 兼容端点模式（如 DeepSeek、小米 MiMo）。
+                          key 从用户级环境变量 ENVVAR 读取注入，绝不打印；--model 必填。
+                          其余参数（--tools/--add-dir/--full-perms/--usage/--timeout）与 provider 模式相同。
        [--tier haiku|sonnet|opus] [--model ID] (--task "..." | --task-file PATH)
        [--tools "Read,Grep,Glob"] [--add-dir "D1,D2"] [--full-perms] [--usage]
                           任务含引号/花括号/换行时务必用 --task-file，避免跨 shell 引号被拆碎。
@@ -94,25 +99,41 @@ def cmd_exec(args):
     task = _resolve_task(args)
     if not task or not task.strip():
         print("任务为空：需提供 --task 或 --task-file", file=sys.stderr); sys.exit(7)
-    con = _conn()
-    row = None
-    for r in con.execute("SELECT app_type, settings_config FROM providers WHERE name=?", (args.provider,)):
-        row = r
-        break
-    con.close()
-    if not row:
-        print(f"未找到 provider: {args.provider}\n"
-              f"提示: 先跑 `cc_switch.py list --human` 看可用名字（需与 cc-switch 里的名字完全一致）。",
+    if not args.endpoint and not args.provider:
+        print("必须提供 --provider（cc-switch 里的名字）或 --endpoint（自定义端点 URL）。",
               file=sys.stderr); sys.exit(2)
-    if row["app_type"] != "claude":
-        print(f"app_type={row['app_type']} 暂不支持经此桥派发（仅 claude/Anthropic 端点）。\n"
-              f"提示: codex/gemini 官方订阅请直接用各自 CLI，见 channels.md。",
-              file=sys.stderr); sys.exit(3)
-    env_cfg = json.loads(row["settings_config"]).get("env", {})
-    base = env_cfg.get("ANTHROPIC_BASE_URL")
-    token = env_cfg.get("ANTHROPIC_AUTH_TOKEN") or env_cfg.get("ANTHROPIC_API_KEY")
+    if args.endpoint:
+        # 自定义端点模式：不经 cc-switch db，key 从用户级环境变量读取注入。
+        base = args.endpoint
+        key_env = args.key_env or "ANTHROPIC_AUTH_TOKEN"
+        token = os.environ.get(key_env, "")
+        provider_name = args.provider or args.endpoint
+        if not token:
+            print(f"环境变量 {key_env} 未设置（当前进程读不到）。\n"
+                  f"提示: 用 setx 写入后需重开 shell 才生效；本会话内可先 export 临时注入。",
+                  file=sys.stderr); sys.exit(4)
+        env_cfg = {}
+    else:
+        con = _conn()
+        row = None
+        for r in con.execute("SELECT app_type, settings_config FROM providers WHERE name=?", (args.provider,)):
+            row = r
+            break
+        con.close()
+        if not row:
+            print(f"未找到 provider: {args.provider}\n"
+                  f"提示: 先跑 `cc_switch.py list --human` 看可用名字（需与 cc-switch 里的名字完全一致）。",
+                  file=sys.stderr); sys.exit(2)
+        if row["app_type"] != "claude":
+            print(f"app_type={row['app_type']} 暂不支持经此桥派发（仅 claude/Anthropic 端点）。\n"
+                  f"提示: codex/gemini 官方订阅请直接用各自 CLI，见 channels.md。",
+                  file=sys.stderr); sys.exit(3)
+        env_cfg = json.loads(row["settings_config"]).get("env", {})
+        base = env_cfg.get("ANTHROPIC_BASE_URL")
+        token = env_cfg.get("ANTHROPIC_AUTH_TOKEN") or env_cfg.get("ANTHROPIC_API_KEY")
+        provider_name = args.provider
     if not (base and token):
-        print(f"provider「{args.provider}」缺 endpoint 或 token（很可能是在 cc-switch 里建了条目但没填 key）。\n"
+        print(f"provider「{provider_name}」缺 endpoint 或 token（很可能是在 cc-switch 里建了条目但没填 key）。\n"
               f"提示: 去 cc-switch 补上 API key 后重试，或走 setup.md 分支 B 手动配置。",
               file=sys.stderr); sys.exit(4)
 
@@ -121,9 +142,12 @@ def cmd_exec(args):
     else:
         model = env_cfg.get(f"ANTHROPIC_DEFAULT_{args.tier.upper()}_MODEL")
     if not model:
+        if args.endpoint:
+            print("自定义端点模式没有档位映射，必须用 --model 直接指定模型 ID。",
+                  file=sys.stderr); sys.exit(5)
         avail = ", ".join(k for k in ("haiku", "sonnet", "opus")
                           if env_cfg.get(f"ANTHROPIC_DEFAULT_{k.upper()}_MODEL")) or "无"
-        print(f"provider「{args.provider}」没有 {args.tier} 档的模型映射。可用档位: {avail}\n"
+        print(f"provider「{provider_name}」没有 {args.tier} 档的模型映射。可用档位: {avail}\n"
               f"提示: 用 --model 直接指定模型 ID，或在 cc-switch 里补齐档位映射。",
               file=sys.stderr); sys.exit(5)
 
@@ -171,7 +195,7 @@ def cmd_exec(args):
             encoding="utf-8", errors="replace", timeout=args.timeout,
         )
     except subprocess.TimeoutExpired:
-        print(f"[超时] provider={args.provider} model={model} 超过 {args.timeout}s 未返回。\n"
+        print(f"[超时] provider={provider_name} model={model} 超过 {args.timeout}s 未返回。\n"
               f"提示: 先排除最常见原因——深思考模型(glm-5.3等)跑长报告类任务实测常需 200-300s，\n"
               f"      默认超时可能偏紧，优先用 --timeout 400 重试。\n"
               f"      也可能是端点过载(529)、模型 ID 无效(400 被 CLI 反复重试)、或网络异常(代理切换中)\n"
@@ -187,7 +211,7 @@ def cmd_exec(args):
     if data is not None:
         if data.get("is_error") or data.get("api_error_status"):
             sys.stderr.write(
-                f"[API 错误] provider={args.provider} model={model} "
+                f"[API 错误] provider={provider_name} model={model} "
                 f"status={data.get('api_error_status')}\n{(data.get('result') or '')[:300]}\n"
             )
             sys.exit(8)
@@ -200,7 +224,7 @@ def cmd_exec(args):
             # input 总量 = 新增 + 缓存写 + 缓存读；其中 cache_read 计费远低于 fresh。
             # 注意：total_cost_usd 按 Anthropic 官方价计算，接第三方端点时无意义，故不输出。
             sys.stderr.write(
-                f"\n[usage] provider={args.provider} model={model} "
+                f"\n[usage] provider={provider_name} model={model} "
                 f"input={fresh + cc + cr} fresh={fresh} cache_create={cc} cache_read={cr} "
                 f"output={u.get('output_tokens', 0)} "
                 f"turns={data.get('num_turns', '?')} ms={data.get('duration_ms', '?')}\n"
@@ -208,7 +232,7 @@ def cmd_exec(args):
         sys.exit(0)
 
     # json 解析失败：多半是 CLI 自身失败（非模型层）。保持 stdout 干净，别把 blob 当答案吐出。
-    sys.stderr.write(f"[调用失败] provider={args.provider} model={model} "
+    sys.stderr.write(f"[调用失败] provider={provider_name} model={model} "
                      f"exit={res.returncode}\n{(res.stderr or res.stdout or '')[:300]}\n")
     sys.exit(res.returncode if res.returncode != 0 else 1)
 
@@ -218,7 +242,13 @@ def main():
     l = sub.add_parser("list")
     l.add_argument("--human", action="store_true", help="人类可读摘要（默认输出 JSON）")
     e = sub.add_parser("exec")
-    e.add_argument("--provider", required=True)
+    e.add_argument("--provider",
+                   help="cc-switch 里的 provider 名。自定义端点模式下可选（仅作显示名）。")
+    e.add_argument("--endpoint",
+                   help="自定义 Anthropic 兼容端点 URL（如 https://api.deepseek.com/anthropic），"
+                        "不经 cc-switch db。与 --key-env、--model 配合使用。")
+    e.add_argument("--key-env", dest="key_env", default="",
+                   help="存放 API key 的用户级环境变量名（如 DEEPSEEK_API_KEY），仅 --endpoint 模式使用。")
     e.add_argument("--tier", default="haiku", choices=["haiku", "sonnet", "opus"])
     e.add_argument("--model")
     e.add_argument("--task")

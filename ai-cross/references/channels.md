@@ -70,6 +70,31 @@ ANTHROPIC_BASE_URL=https://api.kimi.com/coding/ ANTHROPIC_API_KEY=$KIMI_CODING_K
   claude -p --model kimi-for-coding "[任务]"
 ```
 
+### 自定义 Anthropic 端点（DeepSeek / 小米 MiMo，2026-10-04 接入）
+
+这两家 key 存在用户级环境变量（不在 cc-switch 里），用 `cc_switch.py exec` 的**自定义端点模式**派发（不经 cc-switch db，其余护栏/用量统计相同）：
+
+```bash
+# DeepSeek（key 存 DEEPSEEK_API_KEY）
+python cc_switch.py exec --endpoint https://api.deepseek.com/anthropic \
+  --key-env DEEPSEEK_API_KEY --model deepseek-flash --task-file task.txt --usage      # 低档
+python cc_switch.py exec --endpoint https://api.deepseek.com/anthropic \
+  --key-env DEEPSEEK_API_KEY --model deepseek-v4-pro --task-file task.txt --usage     # 高档
+
+# 小米 MiMo（key 存 MIMO_API_KEY）
+python cc_switch.py exec --endpoint https://api.xiaomimimo.com/anthropic \
+  --key-env MIMO_API_KEY --model mimo-v2.6-flash --task-file task.txt --usage         # 低档
+python cc_switch.py exec --endpoint https://api.xiaomimimo.com/anthropic \
+  --key-env MIMO_API_KEY --model mimo-v2.6-pro --task-file task.txt --usage           # 高档
+```
+
+**模型 ID（2026-10-04 经各端点 `GET /v1/models` 枚举 + `/v1/messages` 真身比对核实）**：
+
+- DeepSeek：`deepseek-flash`（V4.1-Flash，支持图片输入）、`deepseek-v4-pro`。注意旧 ID `deepseek-chat`/`deepseek-reasoner` 已不在枚举中，勿用。
+- 小米 MiMo：`mimo-v2.6-flash`、`mimo-v2.6-pro`、`mimo-v2.6-pro-ultraspeed`（及上一代 `mimo-v2.5`/`mimo-v2.5-pro`）；`mimo-v2.5-asr`/`mimo-v2.5-tts*` 是语音型号，不可用于文本派发。
+
+两家的 Anthropic 端点响应体 `model` 字段均如实回显请求值（已核验，无 GLM 式静默降级）；裸 OpenAI 兼容端点分别为 `https://api.deepseek.com/v1`、`https://api.xiaomimimo.com/v1`，可用于纯文本任务直调。setx 写入的环境变量**当前 shell 读不到**，需重开 shell 或本会话临时 export。
+
 PowerShell 宿主下用 `cmd /c "set ANTHROPIC_BASE_URL=… && set ANTHROPIC_AUTH_TOKEN=… && claude -p …"` 保证变量只作用于子进程。端点 URL 以各家官方文档当前值为准。
 
 **⚠️ API 错误可能伪装成正常回答**：`claude -p` 在 API 报错时（如 529 过载、或 400「模型 ID 不存在」）**仍可能 exit 0**，并把错误文本塞进 `result` 字段。必须用 `--output-format json` 并检查 `is_error` / `api_error_status`，否则会把 `"API Error: 400..."` 当成模型答案交付。`cc_switch.py` 现已**始终**走 json 并在**任何**模式下校验（错误时 exit 8、stdout 为空），不再只在 `--usage` 分支检查。自己写命令模板时务必同样处理——纯文本直连时也要看响应体是不是 error。

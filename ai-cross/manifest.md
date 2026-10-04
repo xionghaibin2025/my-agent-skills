@@ -1,5 +1,5 @@
 # 能力清单 manifest
-盘点日期: 2026-09-26 ｜ 宿主: Kimi Code CLI（无内部通道，全部走外部命令）
+盘点日期: 2026-10-04 ｜ 宿主: Kimi Code CLI（无内部通道，全部走外部命令）
 
 | 通道 | 模型/档位 | 强项 | 相对成本 | 额度归属 | 冒烟结果 |
 |---|---|---|---|---|---|
@@ -10,6 +10,9 @@
 | cc_switch→Zhipu GLM Coding Plan / GLM-5.3-Flash | glm-5.3-flash 全档 | 低档批量任务的备选 | 低 | GLM Coding Plan | ✅ 2026-09-23 实测应答正确 |
 | 裸 API 直调→GLM 端点（key 存 `GLM_CODING_KEY`） | glm-5-turbo / glm-5.3 | 纯文本批量任务的更省通道 | 低/高 | GLM Coding Plan | ✅ 2026-09-23 服务端真身一致 |
 | 裸 API 直调→Kimi 端点（key 存 `KIMI_API_KEY`） | k3-256k 等 | 纯文本任务；OpenAI 格式 `/coding/v1/chat/completions` 亦可用 | 低/高 | Kimi Code 订阅 | ✅ 2026-09-26 |
+| cc_switch 自定义端点→DeepSeek（key 存 `DEEPSEEK_API_KEY`） | deepseek-flash / deepseek-v4-pro | 跨厂商交叉验证新成员；flash 支持图片输入 | 低/高 | DeepSeek 按量 API | ✅ 2026-10-04 端点枚举 + 真身比对 + claude CLI 全链路（4.4s） |
+| cc_switch 自定义端点→小米 MiMo（key 存 `MIMO_API_KEY`） | mimo-v2.6-flash / mimo-v2.6-pro | 跨厂商交叉验证新成员 | 低/高 | 小米 MiMo 平台（额度形态以控制台为准） | ✅ 2026-10-04 端点枚举 + 真身比对 + claude CLI 全链路（8.8s） |
+| 裸 API 直调→DeepSeek / MiMo（OpenAI 兼容） | 同上 | 纯文本任务最省通道（地板 ~11 token） | 低/高 | 同上 | ✅ 2026-10-04 `GET /v1/models` 枚举成功 |
 | Codex CLI | — | — | — | — | ❌ 用户已退订（2026-09-23 申报）；CLI 未安装 |
 | Antigravity（Gemini） | — | — | — | Google 账号登录 | ❌ 不可派发：桌面 IDE，其 `antigravity-ide` CLI 仅为 IDE 启动器，无无头模式 |
 
@@ -19,12 +22,14 @@
 |---|---|---|---|
 | Moonshot（宿主或 cc_switch→Kimi Code） | kimi-for-coding-highspeed | kimi-for-coding | k3-256k |
 | 智谱（cc_switch→default 或裸 API） | glm-5-turbo / glm-5.3-flash | glm-5.3 | glm-5.3 |
+| DeepSeek（cc_switch 自定义端点或裸 API） | deepseek-flash | deepseek-flash | deepseek-v4-pro |
+| 小米 MiMo（cc_switch 自定义端点或裸 API） | mimo-v2.6-flash | mimo-v2.6-flash | mimo-v2.6-pro |
 
-**宿主配对规则**：宿主是 Kimi Code → 交叉验证派 GLM；宿主是 ZCode/GLM → 交叉验证派 Kimi。两个方向均已实测可用。
+**宿主配对规则**：宿主是 Kimi Code → 交叉验证首选 GLM，亦可派 DeepSeek / MiMo；宿主是 ZCode/GLM → 交叉验证派 Kimi / DeepSeek / MiMo。Kimi↔GLM 两个方向均已实测可用；DeepSeek、MiMo 已实测可被 Kimi Code 宿主派发。
 
 ## 源与强度解锁
 
-当前可用独立厂商数：2（Moonshot + 智谱 GLM），**双向可派发** → 分层省额度 ✅ ｜ 跨厂商交叉验证 ✅（无论宿主是哪边）｜ 全力模式未请求。
+当前可用独立厂商数：4（Moonshot + 智谱 GLM + DeepSeek + 小米 MiMo）→ 分层省额度 ✅ ｜ 跨厂商交叉验证 ✅（4 选 2，可组 6 对）｜ 全力模式可用（4 厂商 × 多档）。
 
 - 纯文本任务：`cc_switch.py exec --tools ""` 或裸 API 直调。
 - 工具型任务：`cc_switch.py exec`（claude CLI 2.1.280 原生版，`~/.local/bin/claude.exe`，SHA256 与 Anthropic 签名已验证）。
@@ -36,6 +41,12 @@
 python references/cc_switch.py exec --provider "default" --tier sonnet --task-file task.txt --usage
 # Kimi（ZCode/GLM 做宿主时的交叉验证方）
 python references/cc_switch.py exec --provider "Moonshot Kimi / Kimi Code" --tier opus --task-file task.txt --usage
+# DeepSeek（自定义端点模式，key 存用户级环境变量 DEEPSEEK_API_KEY）
+python references/cc_switch.py exec --endpoint https://api.deepseek.com/anthropic \
+  --key-env DEEPSEEK_API_KEY --model deepseek-flash --task-file task.txt --usage
+# 小米 MiMo（key 存 MIMO_API_KEY）
+python references/cc_switch.py exec --endpoint https://api.xiaomimimo.com/anthropic \
+  --key-env MIMO_API_KEY --model mimo-v2.6-flash --task-file task.txt --usage
 # 纯文本最省模式（禁用全部工具）加 --tools ""
 ```
 
@@ -63,12 +74,16 @@ python references/cc_switch.py exec --provider "..." --tier ... --task-file task
 
 ## 模型漂移备注
 
+- 2026-10-04 新增 DeepSeek 与小米 MiMo（各自 `GET /v1/models` 枚举核实）：DeepSeek 当前仅 `deepseek-flash`（V4.1-Flash，支持图片输入）与 `deepseek-v4-pro`，旧 ID `deepseek-chat`/`deepseek-reasoner` 已不在枚举中；MiMo 文本型号 `mimo-v2.6-flash` / `mimo-v2.6-pro` / `mimo-v2.6-pro-ultraspeed`（上一代 `mimo-v2.5`/`mimo-v2.5-pro` 仍在），`mimo-v2.5-asr`/`mimo-v2.5-tts*` 为语音型号勿用于文本派发。两家 Anthropic 端点均如实回显请求 model，无静默降级。
+
 - 2026-09-26 新增 Kimi 档位（经 claude CLI 全链路实测）：`kimi-for-coding-highspeed`（低/高速）、`kimi-for-coding`（中/K2.7 Code）、`k3-256k`（高/K3 旗舰，官方客户端当前默认）。
 - 2026-09-23 实测（GLM 端点直打，比对响应体 model 字段）：`glm-5-turbo` ✅、`glm-5.3` ✅；`glm-5.3[1m]`、`glm-5.3[1M]` HTTP 400 不存在（1211）；`glm-5.3-flash` ✅ 存在且含于套餐；`glm-5.3-flashx` 不在套餐内（429/1311）；`glm-5-flash` 不存在。
 - 2026-08-25 实测：`glm-5.2` 被服务端静默迁移为 `glm-5.3`，不得作为配置值。
 - GLM 冒烟细节：`glm-5.3` 在 max_tokens=16 下返回空文本（思考占满输出预算），属正常现象。
 
 ## 维护记录
+
+- 2026-10-04：接入 DeepSeek 与小米 MiMo 两家按量 API。key 经 `setx` 存为用户级环境变量 `DEEPSEEK_API_KEY` / `MIMO_API_KEY`（注意 setx 不作用于已打开的 shell）。`cc_switch.py` 新增**自定义端点模式**（`--endpoint URL --key-env ENVVAR --model ID`，不经 cc-switch db，其余护栏不变），以容纳不在 cc-switch 里的 key。两家均完成：①端点枚举 ②`/v1/messages` 真身比对（响应 model 与请求一致）③claude CLI 全链路冒烟（DeepSeek 4.4s / MiMo 8.8s）。独立厂商数 2→4。另查明本机 `~/.kimi-code`、`~/.zcode`、`~/.claude` 下的三份 `skills/ai-cross/` 实为**同一文件的链接**（cp 报 same file），改一处即处处生效，无同步负担。
 
 - 2026-09-27：修复"取证类派发两次全灭"问题（Kimi K3 核验 Inkscape 安装事件，留痕 `E:\2_AI工作区\agent\zcode\project_杂\.dispatch\2026092*-ccswitch-kimi-k3-verify*.md`）。**根因两层**：① cc_switch 默认 `--tools Read,Grep,Glob` 不含 Bash，子代理无法执行命令（R1）；② 显式加 Bash 后仍全灭——claude CLI 文件类工具默认只放行会话 cwd（Glob/Read 碰 D:\ C:\ 全拒），且 `-p` 无人值守会话的 permission prompt 无人应答，Bash 命令全部卡死在 requires approval（R2）。**修复**：cc_switch.py 新增 `--add-dir`（逐目录放行）与 `--full-perms`（附加 --dangerously-skip-permissions；--tools 注册层护栏仍压得住它）。低档 glm-5-turbo 冒烟一次通过（Bash 访问 D: + Read 访问 cwd 外 C: 文件均成功）。R3 用"编排者采集证据落盘 → K3 盲分析 → 脚本复核判定表"完成闭环，该姿势保留为取证类派发的推荐替代。另查明：`~/.agents/skills/ai-cross-main/` 主副本已不存在，现仅剩 `~/.zcode/skills/ai-cross/` 一份，无双向同步负担。
 - 2026-09-26：修复 ZCode 会话盲验 glm-5.3 超时事件（ZCode 会话 `sess_c5f4c22c` 在 180s 处被 cc_switch 杀掉）。**根因定案：glm-5.3 深思考跑长报告类任务实测需 200-250s（复现：16.7k output 用时 241s），默认 180s 超时偏紧属误杀**；debug 日志证实 claude CLI 全程只访问目标端点、无境外遥测请求，与网络/代理无关。修复：`cc_switch.py` 默认 `--timeout` 180→300，超时提示改写（长任务优先 `--timeout 400` 重试），并为子进程追加 `DISABLE_TELEMETRY`/`DISABLE_ERROR_REPORTING`/`DISABLE_AUTOUPDATER`/`DISABLE_NON_ESSENTIAL_MODEL_CALLS` 防挂起保险。修复后冒烟 8s 正常。已同步至 ZCode 侧副本 `~/.zcode/skills/ai-cross/`（该副本与主副本 `~/.agents/skills/ai-cross-main/` 是**两份独立拷贝**，改动需双向同步）。
