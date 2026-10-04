@@ -93,3 +93,7 @@ python references/cc_switch.py exec --provider "..." --tier ... --task-file task
 - claude.exe 首次运行需一次性初始化，首次 `claude -p` 可能超过 180s；之后单次纯文本调用约 5–8s。
 - 2026-10-02：ZCode 后台 shell（Bash run_in_background）经 cc_switch 派发 k3-256k 报 `[claude-code:unrecognized_model]`+exit 0xC0000409，同参数前台调用正常（探针实测 4 组全过）。**规避：cc_switch 派发一律前台运行。** 另：要求子代理自跑 geopandas 多轮取证的审查任务 500s 超时，改 R3 姿势（编排者采集证据落盘→子代理纯 Read 盲分析，484s 完成）更稳更快。
 - 2026-10-03：cc_switch.py 在 Kimi Code 宿主派发成功但**收尾写 stdout 时报 UnicodeEncodeError（GBK 无法编码 '²'），子代理结果全文丢失**（exit 1、.out 0 字节）。根因：Kimi Code 的 Bash 调用 python 时未带 UTF-8 环境变量，stdout 按 GBK。**规避：Kimi Code 宿主下派发必须前置 `export PYTHONIOENCODING=utf-8 PYTHONUTF8=1`**（该变量组此前已在 ZCode 侧任务书中验证）。重试 488s 成功。另注：Kimi Code 宿主后台 Bash 派发 k3-256k 实测正常（ZCode 的 bg 问题未复现）。
+
+- 2026-10-04：**cc_switch(claude CLI)×GLM 端点对大字符级 task-file 挂起**：16K 字符纯文本审查任务经 claude CLI 派发 glm-5-turbo（超时 300s/400s）与 glm-5.3-flash（超时 400s）全部挂起，而同通道最小探针秒回、裸 API 直调同一任务 156s 完成（真身比对一致）——挂起在 CLI 层，非端点故障。**规避：GLM 侧 1 万字符级以上纯文本任务优先裸 API 直调（max_tokens 给足 8192），cc_switch×GLM 仅用于小任务**；Kimi 侧 cc_switch 正常（kimi-for-coding 314s / k3-256k 393s）。证据留痕：专利一弃水交底书任务 `6_验证\防御性表达审查\dispatch\派发失败记录.md`。
+
+- 2026-10-04：**cc_switch(claude CLI)×GLM 端点对大字符级 task-file 挂起**：16K 字符纯文本审查任务经 claude CLI 派发 glm-5-turbo（超时 300s/400s）与 glm-5.3-flash（超时 400s）全部挂起，而同通道最小探针秒回、裸 API 直调同一任务 156s 完成（真身比对一致）——挂起在 CLI 层，非端点故障。**规避：GLM 侧 1 万字符级以上纯文本任务优先裸 API 直调（max_tokens 给足 8192），cc_switch×GLM 仅用于小任务**；Kimi 侧 cc_switch 正常（kimi-for-coding 314s / k3-256k 393s）。证据留痕：专利一弃水交底书任务 `6_验证\防御性表达审查\dispatch\派发失败记录.md`。
