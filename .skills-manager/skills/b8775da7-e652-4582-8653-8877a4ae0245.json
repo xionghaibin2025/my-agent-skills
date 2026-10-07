@@ -4,7 +4,9 @@
   "path": "patent-cn-disclosure",
   "path_key": "patent-cn-disclosure",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "专利写作"
+  ],
   "source": {
     "type": "local",
     "ref": null,
