@@ -5,3 +5,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 node_modules/
+
+# skills-manager: oversized skills excluded from backup (auto-managed)
+/easyslides/
+# skills-manager: end oversized skills
