@@ -1,0 +1,8 @@
+{
+  "name": "patent-cn-disclosure-docx",
+  "private": true,
+  "description": "技术交底书 md->docx 底层模板生成器（格式规格见 skill references/docx-format.md）",
+  "dependencies": {
+    "docx": "^9.8.1"
+  }
+}

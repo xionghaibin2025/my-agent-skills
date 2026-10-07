@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "b8775da7-e652-4582-8653-8877a4ae0245",
+  "path": "patent-cn-disclosure",
+  "path_key": "patent-cn-disclosure",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

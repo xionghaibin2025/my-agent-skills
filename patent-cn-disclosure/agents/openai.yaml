@@ -1,0 +1,4 @@
+interface:
+  display_name: "Patent CN Disclosure"
+  short_description: "Chinese invention patent disclosure and claim drafting with per-case reference folders"
+  default_prompt: "Use $patent-cn-disclosure to draft the technical disclosure and preliminary claims for my invention, reading case materials and reference patents from my case folder."
